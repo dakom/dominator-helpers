@@ -1,3 +1,4 @@
+/// simple helper for adding Dom to a slot
 #[macro_export]
 macro_rules! html_at_slot {
     ($name:expr, $slot:expr, { $($rest:tt)* }) => {
@@ -7,15 +8,18 @@ macro_rules! html_at_slot {
         })
     };
 }
-/// make_event! takes a literal and an ident and does the following:
+/// takes a literal and an ident and does the following:
 /// 1. impls what's needed for dominator
 /// 2. calls make_custom_event_serde! to enable the .data() helper (also for dominator)
 /// 3. creates a function for testing the round-tripping from typescript (when ts_test feature is enabled)
+/// NOTE: currently depends on using dakom/dominator fork
+/// See: https://github.com/Pauan/rust-dominator/pull/25
+
 #[macro_export]
 macro_rules! make_event {
     ($literal:literal, $data:ident) => {
         paste::item! {
-            make_custom_event_serde!($literal, [<$data Event>], $data);
+            dominator::make_custom_event_serde!($literal, [<$data Event>], $data);
             cfg_if::cfg_if! {
                 if #[cfg(feature = "ts_test")] {
 
@@ -43,67 +47,6 @@ macro_rules! make_event {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! make_custom_event {
-    ($name:ident, $type:literal) => {
-        dominator::make_event!($name, $type => web_sys::CustomEvent);
-        impl $name {
-            pub fn detail(&self) -> JsValue { self.event.detail() }
-        }
-    }
-}
-
-/// first arg is name of the new struct to create
-/// second arg is literal name of the event
-/// third arg is the data structure. 
-/// 
-/// the data structure needs to already be defined and derive `Deserialize`
-/// 
-/// requires that the serde_wasm_bindgen crate be installed 
-/// however, since this is only a macro, there's no need to feature-gate it here
-/// Example:
-/// 
-/// JS (e.g. from a CustomElement)
-/// 
-/// ```javascript
-/// this.dispatchEvent(new CustomEvent('todo-input', {
-///     detail: {label: value}
-/// }));
-/// ```
-/// 
-/// Rust - first register the event
-/// 
-/// ```rust
-/// 
-/// #[derive(Deserialize)]
-/// pub struct TodoInputEventData {
-///     pub label: String 
-/// }
-/// make_custom_event_serde!("todo-input", TodoInputEvent, TodoInputEventData);
-/// ``` 
-/// 
-/// then use it
-///
-/// ```
-/// html!("todo-custom", {
-///     .event(|event:TodoInputEvent| {
-///         //event.data() is a TodoInputEventData
-///         let label:&str = event.data().label;
-///     })
-/// })
-/// ```
-#[macro_export]
-macro_rules! make_custom_event_serde {
-    ($type:literal, $name:ident, $data:ident) => {
-        $crate::make_custom_event!($name, $type);
-        impl $name {
-            pub fn data(&self) -> $data { 
-                serde_wasm_bindgen::from_value(self.detail()).unwrap()
             }
         }
     }
