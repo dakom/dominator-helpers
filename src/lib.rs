@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! elem {
     ($elem:expr, { $($methods:tt)* }) => {
-        apply_methods!(DomBuilder::new($elem), { $($methods)* }).into_dom()
+        dominator::apply_methods!(dominator::DomBuilder::new($elem), { $($methods)* }).into_dom()
     };
 }
 
@@ -14,8 +14,8 @@ macro_rules! with_data_id {
     ($this:ident, $id:expr, { $($methods:tt)* }) => {
         with_node!($this, element => {
             .__internal_transfer_callbacks({
-                let child = element.query_selector(&format!("[data-id='{}']", id)).unwrap().unwrap();
-                apply_methods!(DomBuilder::new(child), { $($methods)* })
+                let child = element.query_selector(&format!("[data-id='{}']", $id)).unwrap_throw().unwrap_throw();
+                dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
             })
         })
     };
@@ -30,8 +30,8 @@ macro_rules! with_query {
     ($this:ident, $query:expr, { $($methods:tt)* }) => {
         with_node!($this, element => {
             .__internal_transfer_callbacks({
-                let child = element.query_selector($query).unwrap().unwrap();
-                apply_methods!(DomBuilder::new(child), { $($methods)* })
+                let child = element.query_selector($query).unwrap_throw().unwrap_throw();
+                dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
             })
         })
     };
@@ -43,7 +43,7 @@ macro_rules! with_query {
 #[macro_export]
 macro_rules! html_at_slot {
     ($name:expr, $slot:expr, { $($rest:tt)* }) => {
-        html!($name, {
+        dominator::html!($name, {
             .attribute("slot", $slot)
             $($rest)*
         })
@@ -146,7 +146,7 @@ macro_rules! make_custom_event {
 #[macro_export]
 macro_rules! make_custom_event_serde {
     ($type:literal, $name:ident, $data:ident) => {
-        $crate::make_custom_event!($name, $type);
+        make_custom_event!($name, $type);
         impl $name {
             pub fn data(&self) -> $data { 
                 serde_wasm_bindgen::from_value(self.detail()).unwrap()
