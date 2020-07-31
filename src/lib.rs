@@ -12,7 +12,7 @@ macro_rules! elem {
 #[macro_export]
 macro_rules! with_data_id {
     ($this:ident, $id:expr, { $($methods:tt)* }) => {
-        with_node!($this, element => {
+        dominator::with_node!($this, element => {
             .__internal_transfer_callbacks({
                 let child = element.query_selector(&format!("[data-id='{}']", $id)).unwrap_throw().unwrap_throw();
                 dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
@@ -28,7 +28,7 @@ macro_rules! with_data_id {
 #[macro_export]
 macro_rules! with_query {
     ($this:ident, $query:expr, { $($methods:tt)* }) => {
-        with_node!($this, element => {
+        dominator::with_node!($this, element => {
             .__internal_transfer_callbacks({
                 let child = element.query_selector($query).unwrap_throw().unwrap_throw();
                 dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
