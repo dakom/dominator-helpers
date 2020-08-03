@@ -1,3 +1,20 @@
+use discard::DiscardOnDrop;
+use futures_signals::{cancelable_future, CancelableFutureHandle};
+use wasm_bindgen_futures::spawn_local;
+use std::future::Future;
+
+/// Makes it easier to spawn and cancel a future-signal
+/// Copied with permission from Dominator's pub(crate) function
+#[inline]
+pub fn spawn_future<F>(future: F) -> DiscardOnDrop<CancelableFutureHandle>
+    where F: Future<Output = ()> + 'static {
+    let (handle, future) = cancelable_future(future, || ());
+
+    spawn_local(future);
+
+    handle
+}
+
 /// pass in a HtmlElement
 #[macro_export]
 macro_rules! elem {
