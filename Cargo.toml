@@ -1,7 +1,7 @@
 [package]
 name = "dominator_helpers"
 description = "helpers for Dominator"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["David Komer <david.komer@gmail.com>"]
 edition = "2018"
 documentation = "https://docs.rs/dominator-helpers"
@@ -18,6 +18,7 @@ categories = ["gui", "web-programming", "wasm"]
 discard = "^1.0"
 futures-signals = "^0.3"
 wasm-bindgen-futures = "^0.4"
+futures = "^0.3"
 
 [features]
 ts_test = []
