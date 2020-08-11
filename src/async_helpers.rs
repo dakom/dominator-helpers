@@ -18,6 +18,12 @@ pub struct AsyncLoader {
     loading: Mutable<Option<AsyncState>>,
 }
 
+impl Drop for AsyncLoader {
+    fn drop(&mut self) {
+        self.cancel();
+    }
+}
+
 impl AsyncLoader {
     pub fn new() -> Self {
         Self {
