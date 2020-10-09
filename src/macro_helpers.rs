@@ -6,36 +6,32 @@ macro_rules! elem {
     };
 }
 
-/// Method to get a child by data-id
+/// Method to get a child by query 
 /// example:
-/// .with_data_id!("status", {
+/// .with_query!("[data-id='status']", {
 ///     .event(...)
+///
 #[macro_export]
-macro_rules! with_data_id {
-    ($this:ident, $id:expr, { $($methods:tt)* }) => {
+macro_rules! with_query {
+    ($this:ident, $query:expr => $t:ty, { $($methods:tt)* }) => {
         dominator::with_node!($this, element => {
             .__internal_transfer_callbacks({
-                let child = element.query_selector(&format!("[data-id='{}']", $id)).unwrap_throw().unwrap_throw();
+                let child = element.query_selector($query).unwrap_throw().unwrap_throw();
+                let child: $t = wasm_bindgen::JsCast::dyn_into(child).unwrap_throw();
                 dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
             })
         })
     };
 }
 
-
-/// Method to get a child by query 
+/// Method to get a child by data-id
 /// example:
-/// .with_query!("[data-id='status']", {
+/// .with_data_id!("status", {
 ///     .event(...)
 #[macro_export]
-macro_rules! with_query {
-    ($this:ident, $query:expr, { $($methods:tt)* }) => {
-        dominator::with_node!($this, element => {
-            .__internal_transfer_callbacks({
-                let child = element.query_selector($query).unwrap_throw().unwrap_throw();
-                dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
-            })
-        })
+macro_rules! with_data_id {
+    ($this:ident, $id:expr => $t:ty, { $($methods:tt)* }) => {
+        $crate::with_query($this, &format!("[data-id='{}']", $id) => $t, { $($methods)* })
     };
 }
 
