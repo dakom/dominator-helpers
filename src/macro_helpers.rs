@@ -24,7 +24,7 @@ macro_rules! with_query {
         })
     };
     ($this:ident, $query:expr, { $($methods:tt)* }) => {
-        $crate:with_query!($this, $query => web_sys::HtmlElement, { $($methods)* })
+        $crate::with_query!($this, $query => web_sys::HtmlElement, { $($methods)* })
     };
 }
 
@@ -39,7 +39,7 @@ macro_rules! with_data_id {
         $crate::with_query!($this, &format!("[data-id='{}']", $id) => $t, { $($methods)* })
     };
     ($this:ident, $id:expr, { $($methods:tt)* }) => {
-        $crate:with_data_id!($this, $id => web_sys::HtmlElement, { $($methods)* })
+        $crate::with_data_id!($this, $id => web_sys::HtmlElement, { $($methods)* })
     };
 }
 
