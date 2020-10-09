@@ -1,3 +1,4 @@
+
 /// pass in a HtmlElement and get a Dom
 #[macro_export]
 macro_rules! elem {
@@ -31,16 +32,17 @@ macro_rules! with_query {
 /// example:
 /// .with_data_id!("status", {
 ///     .event(...)
+///
 #[macro_export]
 macro_rules! with_data_id {
     ($this:ident, $id:expr => $t:ty, { $($methods:tt)* }) => {
-        let id = format!("[data-id='{}']", $id);
-        $crate::with_query($this, &id => $t, { $($methods)* })
+        $crate::with_query!($this, &format!("[data-id='{}']", $id) => $t, { $($methods)* })
     };
     ($this:ident, $id:expr, { $($methods:tt)* }) => {
         $crate:with_data_id!($this, $id => web_sys::HtmlElement, { $($methods)* })
     };
 }
+
 
 /// Create an element type at a slot (useful for web components) 
 /// e.g. this will create the "todo-input" element with its "slot" attribute set to "input"
@@ -160,3 +162,4 @@ macro_rules! make_custom_event_serde {
         }
     }
 }
+
