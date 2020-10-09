@@ -22,6 +22,9 @@ macro_rules! with_query {
             })
         })
     };
+    ($this:ident, $query:expr, { $($methods:tt)* }) => {
+        $crate:with_query!($this, $query => web_sys::HtmlElement, { $($methods)* })
+    };
 }
 
 /// Method to get a child by data-id
@@ -32,6 +35,9 @@ macro_rules! with_query {
 macro_rules! with_data_id {
     ($this:ident, $id:expr => $t:ty, { $($methods:tt)* }) => {
         $crate::with_query($this, &format!("[data-id='{}']", $id) => $t, { $($methods)* })
+    };
+    ($this:ident, $id:expr, { $($methods:tt)* }) => {
+        $crate:with_data_id!($this, $id => web_sys::HtmlElement, { $($methods)* })
     };
 }
 
