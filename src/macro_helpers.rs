@@ -34,7 +34,8 @@ macro_rules! with_query {
 #[macro_export]
 macro_rules! with_data_id {
     ($this:ident, $id:expr => $t:ty, { $($methods:tt)* }) => {
-        $crate::with_query($this, &format!("[data-id='{}']", $id) => $t, { $($methods)* })
+        let id = format!("[data-id='{}']", $id);
+        $crate::with_query($this, &id => $t, { $($methods)* })
     };
     ($this:ident, $id:expr, { $($methods:tt)* }) => {
         $crate:with_data_id!($this, $id => web_sys::HtmlElement, { $($methods)* })
