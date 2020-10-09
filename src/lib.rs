@@ -19,6 +19,6 @@ mod tests {
             .with_data_id!("img" => HtmlElement, {
                 .property("src", "foo")
             })
-        })
+        });
     }
 }
