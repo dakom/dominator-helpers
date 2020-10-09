@@ -1,6 +1,3 @@
-#![feature(trace_macros)]
-trace_macros!(true);
-
 mod macro_helpers;
 mod async_helpers;
 
