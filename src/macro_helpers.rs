@@ -124,7 +124,7 @@ macro_rules! make_custom_event {
 /// 
 /// JS (e.g. from a CustomElement)
 /// 
-/// ```javascript
+/// ```javascript,ignore
 /// this.dispatchEvent(new CustomEvent('todo-input', {
 ///     detail: {label: value}
 /// }));
@@ -132,8 +132,7 @@ macro_rules! make_custom_event {
 /// 
 /// Rust - first register the event
 /// 
-/// ```rust
-/// 
+/// ```rust,ignore
 /// #[derive(Deserialize)]
 /// pub struct TodoInputEventData {
 ///     pub label: String 
@@ -143,7 +142,7 @@ macro_rules! make_custom_event {
 /// 
 /// then use it
 ///
-/// ```
+/// ```rust,ignore
 /// html!("todo-custom", {
 ///     .event(|event:TodoInputEvent| {
 ///         //event.data() is a TodoInputEventData
