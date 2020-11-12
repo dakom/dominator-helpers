@@ -17,8 +17,9 @@ macro_rules! with_query {
     ($this:ident, $query:expr => $t:ty, { $($methods:tt)* }) => {
         dominator::with_node!($this, element => {
             .__internal_transfer_callbacks({
-                let child = element.query_selector($query).unwrap_throw().unwrap_throw();
-                let child: $t = wasm_bindgen::JsCast::dyn_into(child).unwrap_throw();
+                let error_msg = &format!("unable to get element for {}", $query);
+                let child = element.query_selector($query).expect_throw(error_msg).expect_throw(error_msg);
+                let child: $t = wasm_bindgen::JsCast::dyn_into(child).expect_throw(error_msg);
                 dominator::apply_methods!(dominator::DomBuilder::new(child), { $($methods)* })
             })
         })
