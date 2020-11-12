@@ -44,6 +44,33 @@ macro_rules! with_data_id {
     };
 }
 
+/// Placeholder for https://github.com/Pauan/rust-dominator/issues/44
+#[macro_export]
+macro_rules! dynamic_class_signal {
+    ($this:ident, $signal:expr) => {
+        dominator::with_node!($this, element => {
+            .__internal_transfer_callbacks({
+                dominator::apply_methods!(dominator::DomBuilder::new(element.clone()), { 
+                    .future({
+                        let mut old = None;
+                        $signal.for_each(move |class| {
+                            if let Some(old) = old.as_deref() {
+                                element.class_list().remove_1(old).unwrap();
+                            }
+
+                            if let Some(name) = class.as_deref() {
+                                element.class_list().add_1(&name).unwrap();
+                            }
+                            old = class; 
+
+                            async {} 
+                        })
+                    })
+                })
+            })
+        })
+    };
+}
 
 /// Create an element type at a slot (useful for web components) 
 /// e.g. this will create the "todo-input" element with its "slot" attribute set to "input"
