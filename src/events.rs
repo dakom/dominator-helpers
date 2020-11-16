@@ -5,6 +5,7 @@ use serde::de::DeserializeOwned;
 
 /// TODO - use dominator::make_event instead! 
 /// (it's not exported yet)
+#[macro_export]
 macro_rules! temp_make_event {
     ($name:ident, $type:literal => $event:path) => {
         pub struct $name {
@@ -35,6 +36,7 @@ macro_rules! temp_make_event {
     };
 }
 
+//New event types
 temp_make_event!(Message, "message" => web_sys::MessageEvent);
 impl Message {
     pub fn try_get_data<T: DeserializeOwned>(&self) -> Result<T, serde_wasm_bindgen::Error> {
