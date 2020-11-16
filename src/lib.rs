@@ -1,8 +1,8 @@
 mod macros;
-mod async;
+mod futures;
 mod events;
 
 pub use macros::*;
-pub use async::*;
+pub use self::futures::*;
 pub use events::*;
 
