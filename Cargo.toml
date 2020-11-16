@@ -1,7 +1,7 @@
 [package]
 name = "dominator_helpers"
 description = "helpers for Dominator"
-version = "0.3.7"
+version = "0.4.0"
 authors = ["David Komer <david.komer@gmail.com>"]
 edition = "2018"
 documentation = "https://docs.rs/dominator-helpers"
@@ -19,6 +19,16 @@ discard = "^1.0"
 futures-signals = "^0.3"
 wasm-bindgen-futures = "^0.4"
 futures = "^0.3"
+serde-wasm-bindgen = "^0.1"
+serde = { version = "1.0.117"}
+dominator = "0.5.14"
+wasm-bindgen = "0.2.68"
+
+[dependencies.web-sys]
+version = "0.3.45"
+features = [
+    "MessageEvent",
+]
 
 [features]
 ts_test = []
