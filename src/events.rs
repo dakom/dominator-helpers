@@ -39,11 +39,12 @@ macro_rules! temp_make_event {
 //New event types
 temp_make_event!(Message, "message" => web_sys::MessageEvent);
 impl Message {
-    pub fn try_get_data<T: DeserializeOwned>(&self) -> Result<T, serde_wasm_bindgen::Error> {
+    pub fn try_serde_data<T: DeserializeOwned>(&self) -> Result<T, serde_wasm_bindgen::Error> {
         serde_wasm_bindgen::from_value(self.event.data())
     }
-    pub fn get_data<T: DeserializeOwned>(&self) -> T {
-        serde_wasm_bindgen::from_value(self.event.data()).unwrap_throw()
+
+    pub fn serde_data_unchecked<T: DeserializeOwned>(&self) -> T {
+        self.try_serde_data().unwrap_throw()
     }
 }
                 
@@ -99,8 +100,11 @@ macro_rules! make_custom_event_serde {
     ($type:literal, $name:ident, $data:ident) => {
         make_custom_event!($name, $type);
         impl $name {
-            pub fn get_data(&self) -> $data { 
-                serde_wasm_bindgen::from_value(self.detail()).unwrap()
+            pub fn try_serde_data(&self) -> Result<$data, serde_wasm_bindgen::Error>  { 
+                serde_wasm_bindgen::from_value(self.detail())
+            }
+            pub fn serde_data_unchecked(&self) -> $data { 
+                serde_wasm_bindgen::from_value(self.detail()).unwrap_throw()
             }
         }
     }
@@ -129,7 +133,7 @@ macro_rules! make_ts_event {
                         };
 
                         if literal == $literal {
-                            let data:$data = event.get_data(); 
+                            let data:$data = event.serde_data_unchecked(); 
                             let expected = serde_json::to_string(&$data::default()).unwrap();
                             let got = serde_json::to_string(&data).unwrap();
                             if expected != got {
