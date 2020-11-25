@@ -47,7 +47,11 @@ impl Message {
         self.try_serde_data().unwrap_throw()
     }
 }
-                
+
+//Just a generic Event for now
+//For images - wrap it via with_node and get img size from there
+temp_make_event!(Load, "load" => web_sys::Event);
+
 #[macro_export]
 macro_rules! make_custom_event {
     ($name:ident, $type:literal) => {
