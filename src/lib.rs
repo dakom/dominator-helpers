@@ -1,7 +1,7 @@
 mod macros;
-mod futures;
+pub mod futures;
+pub mod signals;
 pub mod events;
 
 pub use macros::*;
-pub use self::futures::*;
 
