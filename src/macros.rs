@@ -1,4 +1,3 @@
-
 /// pass in a HtmlElement and get a Dom
 #[macro_export]
 macro_rules! elem {
@@ -7,7 +6,7 @@ macro_rules! elem {
     };
 }
 
-/// Method to get a child by query 
+/// Method to get a child by query
 /// example:
 /// .with_query!("[data-id='status']", {
 ///     .event(...)
@@ -50,7 +49,7 @@ macro_rules! dynamic_class_signal {
     ($this:ident, $signal:expr) => {
         dominator::with_node!($this, element => {
             .__internal_transfer_callbacks({
-                dominator::apply_methods!(dominator::DomBuilder::new(element.clone()), { 
+                dominator::apply_methods!(dominator::DomBuilder::new(element.clone()), {
                     .future({
                         let mut old = None;
                         $signal.for_each(move |class| {
@@ -61,9 +60,9 @@ macro_rules! dynamic_class_signal {
                             if let Some(name) = class.as_deref() {
                                 element.class_list().add_1(&name).unwrap();
                             }
-                            old = class; 
+                            old = class;
 
-                            async {} 
+                            async {}
                         })
                     })
                 })
@@ -72,7 +71,7 @@ macro_rules! dynamic_class_signal {
     };
 }
 
-/// Create an element type at a slot (useful for web components) 
+/// Create an element type at a slot (useful for web components)
 /// e.g. this will create the "todo-input" element with its "slot" attribute set to "input"
 /// html_at_slot!("todo-input", "input", { ... }
 #[macro_export]
@@ -84,5 +83,3 @@ macro_rules! html_at_slot {
         })
     };
 }
-
-

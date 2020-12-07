@@ -1,4 +1,4 @@
-/*                
+/*
  * These all generally solving the problem of where you need to return different types of signals
  * But don't want to Box it.
  *
@@ -7,9 +7,9 @@
  *
  * Fwiw, Boxing signals looks like this, for example:
     match foo {
-        None => 
+        None =>
             Box::pin(always(None)) as Pin<Box<dyn Signal<Item = Option<Dom>>>>,
-        Some(bar) => 
+        Some(bar) =>
             Box::pin(get_some_signal(bar)) as Pin<Box<dyn Signal<Item = Option<Dom>>>>
     }
 */
@@ -20,28 +20,28 @@
  * and if it returns Poll::Ready(None), then from that point forward it must always return Poll::Ready(None)
 */
 
-use futures_signals::signal::{SignalExt, Signal};
-use std::pin::Pin;
+use futures_signals::signal::{Signal, SignalExt};
 use std::marker::Unpin;
+use std::pin::Pin;
 use std::task::{Context, Poll};
 
-/// If the provided signal is None, 
+/// If the provided signal is None,
 /// then a signal of the provided default
-/// otherwise, the signal's value 
-pub struct DefaultSignal <S, T> 
+/// otherwise, the signal's value
+pub struct DefaultSignal<S, T>
 where
-    S: Signal<Item = T>
+    S: Signal<Item = T>,
 {
     default: Option<T>,
     value_signal: Option<S>,
-    const_has_fired: bool
+    const_has_fired: bool,
 }
 
-impl <S, T> DefaultSignal <S, T> 
+impl<S, T> DefaultSignal<S, T>
 where
-    S: Signal<Item = T>
+    S: Signal<Item = T>,
 {
-    pub fn new(default:T, value_signal: Option<S>) -> Self {
+    pub fn new(default: T, value_signal: Option<S>) -> Self {
         Self {
             default: Some(default),
             value_signal,
@@ -50,13 +50,13 @@ where
     }
 }
 
-impl <S, T> Signal for DefaultSignal<S, T>
+impl<S, T> Signal for DefaultSignal<S, T>
 where
     S: Signal<Item = T> + Unpin,
-    T: Unpin
+    T: Unpin,
 {
     type Item = T;
-    
+
     fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
         let _self = self.get_mut();
 
@@ -69,28 +69,25 @@ where
                     Poll::Ready(_self.default.take())
                 }
             }
-            Some(value_signal) => {
-                value_signal.poll_change_unpin(cx)
-            }
+            Some(value_signal) => value_signal.poll_change_unpin(cx),
         }
     }
 }
 
-
-/// If the provided signal is None, 
-/// then a signal of None 
+/// If the provided signal is None,
+/// then a signal of None
 /// otherwise, a signal of Some(value)
-pub struct OptionSignal <S, T> 
+pub struct OptionSignal<S, T>
 where
-    S: Signal<Item = T>
+    S: Signal<Item = T>,
 {
     value_signal: Option<S>,
-    const_has_fired: bool
+    const_has_fired: bool,
 }
 
-impl <S, T> OptionSignal <S, T> 
+impl<S, T> OptionSignal<S, T>
 where
-    S: Signal<Item = T>
+    S: Signal<Item = T>,
 {
     pub fn new(value_signal: Option<S>) -> Self {
         Self {
@@ -100,13 +97,13 @@ where
     }
 }
 
-impl <S, T> Signal for OptionSignal<S, T>
+impl<S, T> Signal for OptionSignal<S, T>
 where
     S: Signal<Item = T> + Unpin,
-    T: Unpin
+    T: Unpin,
 {
     type Item = Option<T>;
-    
+
     fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
         let _self = self.get_mut();
 
@@ -120,7 +117,8 @@ where
                 }
             }
             Some(value_signal) => {
-                value_signal.poll_change_unpin(cx)
+                value_signal
+                    .poll_change_unpin(cx)
                     //need to map the inner Option
                     //outer one is just Poll
                     .map(|value| value.map(|value| Some(value)))
@@ -132,12 +130,14 @@ where
 // A signal of either left or right
 pub enum EitherSignal<Left, Right> {
     Left(Left),
-    Right(Right)
+    Right(Right),
 }
 
 impl<Left, Right, T> Signal for EitherSignal<Left, Right>
-    where Left: Signal<Item = T> + Unpin,
-          Right: Signal<Item = T> + Unpin {
+where
+    Left: Signal<Item = T> + Unpin,
+    Right: Signal<Item = T> + Unpin,
+{
     type Item = T;
 
     fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {

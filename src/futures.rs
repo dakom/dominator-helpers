@@ -1,16 +1,15 @@
 use discard::DiscardOnDrop;
+use futures::future::{abortable, AbortHandle};
 use futures_signals::{
-    cancelable_future, 
-    CancelableFutureHandle, 
-    signal::{Signal, Mutable}
+    cancelable_future,
+    signal::{Mutable, Signal},
+    CancelableFutureHandle,
 };
-use wasm_bindgen_futures::spawn_local;
 use std::{
     future::Future,
-    sync::atomic::{AtomicUsize, Ordering}
+    sync::atomic::{AtomicUsize, Ordering},
 };
-use futures::future::{abortable, AbortHandle};
-
+use wasm_bindgen_futures::spawn_local;
 
 /// Makes it easier to run a future in the background with the ability to cancel and/or swap it
 /// The status of the most-recent future can be gotten as a signal via `is_loading()`
@@ -45,7 +44,10 @@ impl AsyncLoader {
         *loading = value;
     }
 
-    pub fn load<F>(&self, fut: F) where F: Future<Output = ()> + 'static {
+    pub fn load<F>(&self, fut: F)
+    where
+        F: Future<Output = ()> + 'static,
+    {
         let (fut, handle) = abortable(fut);
 
         let state = AsyncState::new(handle);
@@ -66,9 +68,9 @@ impl AsyncLoader {
                             *loading = None;
                         }
                     }
-                },
+                }
                 // It was already cancelled
-                Err(_) => {},
+                Err(_) => {}
             }
         });
     }
@@ -95,7 +97,9 @@ impl AsyncState {
 /// Makes it easier to spawn a future into a cancellable signal
 #[inline]
 pub fn spawn_future<F>(future: F) -> DiscardOnDrop<CancelableFutureHandle>
-    where F: Future<Output = ()> + 'static {
+where
+    F: Future<Output = ()> + 'static,
+{
     let (handle, future) = cancelable_future(future, || ());
 
     spawn_local(future);
