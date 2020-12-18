@@ -119,10 +119,10 @@ macro_rules! make_custom_event_serde {
     ($type:literal, $name:ident, $data:ident) => {
         $crate::make_custom_event!($name, $type);
         impl $name {
-            pub fn try_serde_data(&self) -> Result<$data, serde_wasm_bindgen::Error> {
+            pub fn try_data(&self) -> Result<$data, serde_wasm_bindgen::Error> {
                 serde_wasm_bindgen::from_value(self.detail())
             }
-            pub fn serde_data_unchecked(&self) -> $data {
+            pub fn data(&self) -> $data {
                 use wasm_bindgen::UnwrapThrowExt;
                 serde_wasm_bindgen::from_value(self.detail()).unwrap_throw()
             }
