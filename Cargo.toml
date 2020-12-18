@@ -1,7 +1,7 @@
 [package]
 name = "dominator_helpers"
 description = "helpers for Dominator"
-version = "0.5.1"
+version = "0.5.2"
 authors = ["David Komer <david.komer@gmail.com>"]
 edition = "2018"
 documentation = "https://docs.rs/dominator-helpers"

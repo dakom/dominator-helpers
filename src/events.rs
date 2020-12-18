@@ -59,12 +59,13 @@ impl Message {
 
 //Just a generic Event for now
 //For images - wrap it via with_node and get img size from there
+//Or use a custom event and dispatch (see make_custom_event_serde)
 temp_make_event!(Load, "load" => web_sys::Event);
 
 #[macro_export]
 macro_rules! make_custom_event {
     ($name:ident, $type:literal) => {
-        temp_make_event!($name, $type => web_sys::CustomEvent);
+        $crate::temp_make_event!($name, $type => web_sys::CustomEvent);
         impl $name {
             pub fn detail(&self) -> JsValue { self.event.detail() }
         }
