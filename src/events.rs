@@ -111,7 +111,7 @@ macro_rules! make_custom_event {
 #[macro_export]
 macro_rules! make_custom_event_serde {
     ($type:literal, $name:ident, $data:ident) => {
-        make_custom_event!($name, $type);
+        $crate::make_custom_event!($name, $type);
         impl $name {
             pub fn try_serde_data(&self) -> Result<$data, serde_wasm_bindgen::Error> {
                 serde_wasm_bindgen::from_value(self.detail())
@@ -131,7 +131,7 @@ macro_rules! make_custom_event_serde {
 macro_rules! make_ts_event {
     ($literal:literal, $data:ident) => {
         paste::item! {
-            make_custom_event_serde!($literal, [<$data Event>], $data);
+            $crate::make_custom_event_serde!($literal, [<$data Event>], $data);
             cfg_if::cfg_if! {
                 if #[cfg(feature = "ts_test")] {
 

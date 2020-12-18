@@ -73,9 +73,9 @@ macro_rules! dynamic_class_signal {
 
 /// Create an element type at a slot (useful for web components)
 /// e.g. this will create the "todo-input" element with its "slot" attribute set to "input"
-/// html_at_slot!("todo-input", "input", { ... }
+/// html_slot!("todo-input", "input", { ... }
 #[macro_export]
-macro_rules! html_at_slot {
+macro_rules! html_slot {
     ($name:expr, $slot:expr, { $($rest:tt)* }) => {
         dominator::html!($name, {
             .attribute("slot", $slot)
