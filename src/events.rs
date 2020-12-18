@@ -1,6 +1,5 @@
-use dominator::traits::StaticEvent;
-use serde::de::DeserializeOwned;
-use wasm_bindgen::{JsCast, UnwrapThrowExt};
+//Make sure to include:
+//use wasm_bindgen::{JsCast, UnwrapThrowExt};
 
 /// TODO - use dominator::make_event instead!
 /// (it's not exported yet)
@@ -11,7 +10,7 @@ macro_rules! temp_make_event {
             event: $event,
         }
 
-        impl StaticEvent for $name {
+        impl dominator::traits::StaticEvent for $name {
             const EVENT_TYPE: &'static str = $type;
 
             #[inline]
@@ -47,11 +46,11 @@ macro_rules! temp_make_event {
 //New event types
 temp_make_event!(Message, "message" => web_sys::MessageEvent);
 impl Message {
-    pub fn try_serde_data<T: DeserializeOwned>(&self) -> Result<T, serde_wasm_bindgen::Error> {
+    pub fn try_serde_data<T: serde::de::DeserializeOwned>(&self) -> Result<T, serde_wasm_bindgen::Error> {
         serde_wasm_bindgen::from_value(self.event.data())
     }
 
-    pub fn serde_data_unchecked<T: DeserializeOwned>(&self) -> T {
+    pub fn serde_data_unchecked<T: serde::de::DeserializeOwned>(&self) -> T {
         self.try_serde_data().unwrap_throw()
     }
 }
@@ -147,8 +146,8 @@ macro_rules! make_ts_event {
 
                         if literal == $literal {
                             let data:$data = event.serde_data_unchecked();
-                            let expected = serde_json::to_string(&$data::default()).unwrap();
-                            let got = serde_json::to_string(&data).unwrap();
+                            let expected = serde_json::to_string(&$data::default()).unwrap_throw();
+                            let got = serde_json::to_string(&data).unwrap_throw();
                             if expected != got {
                                 Err(JsValue::from_str(&format!("did not match default! should be {} but is {}", expected, got)))
                             } else {
