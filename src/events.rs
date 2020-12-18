@@ -1,7 +1,6 @@
 use dominator::traits::StaticEvent;
 use serde::de::DeserializeOwned;
 use wasm_bindgen::{JsCast, UnwrapThrowExt};
-use web_sys::EventTarget;
 
 /// TODO - use dominator::make_event instead!
 /// (it's not exported yet)
@@ -30,7 +29,7 @@ macro_rules! temp_make_event {
             }
 
             #[inline]
-            pub fn target(&self) -> Option<EventTarget> {
+            pub fn target(&self) -> Option<web_sys::EventTarget> {
                 self.event.target()
             }
 
