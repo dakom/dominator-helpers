@@ -13,6 +13,7 @@ use wasm_bindgen_futures::spawn_local;
 
 /// Makes it easier to run a future in the background with the ability to cancel and/or swap it
 /// The status of the most-recent future can be gotten as a signal via `is_loading()`
+#[derive(Clone)]
 pub struct AsyncLoader {
     loading: Mutable<Option<AsyncState>>,
 }
