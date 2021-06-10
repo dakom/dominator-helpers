@@ -17,7 +17,8 @@
 /* TIPS FOR IMPLEMENTATION
  * a Signal must always return Poll::Ready(Some(...)) the first time it is called
  * after that it can return either Poll::Ready(Some(...)), Poll::Pending, or Poll::Ready(None)
- * and if it returns Poll::Ready(None), then from that point forward it must always return Poll::Ready(None)
+ * and if it returns Poll::Ready(None), then from that point forward it's 
+ * considered finished, the consumer must not poll again.
 */
 
 use futures_signals::signal::{Signal, SignalExt};
