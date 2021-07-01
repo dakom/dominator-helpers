@@ -1,4 +1,37 @@
 /*
+ * This helper is to make it simpler to Box a signal-factory function
+ * The use case is similar to where you might have a ReadOnlyMutable or Broadcaster
+ * e.g. to re-render the same signal multiple times
+ * If the signal-generation itself is expensive, use Broadcaster instead 
+ * If keeping a ReadOnlyMutable around is fine, use that instead
+ * Otherwise, there's this for the sake of convenience :)
+ * or needing to keep a separate ReadOnlyMutable around
+ *
+ * Example:
+ * pub struct Foo {
+ *   pub active_signal: SignalFn<bool>,
+ * }
+ *
+ *
+ * impl Foo {
+ *   pub fn new<S: Signal<Item = bool> + 'static>(active_signal: impl Fn() -> S + 'static) -> Self {
+ *     Self {
+ *       active_signal: box_signal_fn(active_signal),
+ *    }
+ * }
+ */
+
+/// Type alias for a boxed signal-factory
+pub type BoxSignalFn<T> = Box<dyn Fn() -> Pin<Box<dyn Signal<Item = T>>>>;
+
+/// Helper to create boxed signal-factories
+pub fn box_signal_fn<T, S: Signal<Item = T> + 'static>(f: impl Fn() -> S + 'static) -> BoxSignalFn<T> {
+    Box::new(move || {
+        Box::pin(f())
+    })
+}
+
+/*
  * These all generally solving the problem of where you need to return different types of signals
  * But don't want to Box it.
  *
