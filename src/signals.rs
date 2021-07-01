@@ -19,6 +19,8 @@
  *       active_signal: box_signal_fn(active_signal),
  *    }
  * }
+ *
+ * let foo = Foo::new(|| always(true));
  */
 
 /// Type alias for a boxed signal-factory
