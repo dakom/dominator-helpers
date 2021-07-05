@@ -69,6 +69,7 @@ use futures_signals::signal::{Signal, SignalExt};
 use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
+use std::rc::Rc;
 
 /// If the provided signal is None,
 /// then a signal of the provided default
