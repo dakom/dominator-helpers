@@ -9,7 +9,7 @@
  *
  * Example:
  * pub struct Foo {
- *   pub active_signal: SignalFn<bool>,
+ *   pub active_signal: BoxSignalFn<bool>,
  * }
  *
  *
@@ -33,6 +33,15 @@ pub fn box_signal_fn<T, S: Signal<Item = T> + 'static>(f: impl Fn() -> S + 'stat
     })
 }
 
+/// Type alias for a Rc'd signal-factory (same idea as BoxSignalFn but cloneable)
+pub type RcSignalFn<T> = Rc<dyn Fn() -> Pin<Box<dyn Signal<Item = T>>>>;
+
+/// Helper to create Rc signal-factories (same idea as box_signal_fn but cloneable)
+pub fn rc_signal_fn<T, S: Signal<Item = T> + 'static>(f: impl Fn() -> S + 'static) -> RcSignalFn<T> {
+    Rc::new(move || {
+        Box::pin(f())
+    })
+}
 /*
  * These all generally solving the problem of where you need to return different types of signals
  * But don't want to Box it.
