@@ -214,23 +214,26 @@ cfg_if::cfg_if! {
             }
         }
 
-        pub fn dom_rect_signal(element: &Element) -> DomRectSignal {
-            let (sender, receiver) = channel(element.get_bounding_client_rect());
+        impl DomRectSignal {
+            pub fn new(element: &Element) -> Self {
+                let (sender, receiver) = channel(element.get_bounding_client_rect());
 
-            let observer = {
-                let element = element.clone();
-                
-                ResizeObserver::new_simple(move || {
-                    sender.send(element.get_bounding_client_rect()).unwrap();
-                })
-            };
+                let observer = {
+                    let element = element.clone();
+                    
+                    ResizeObserver::new_simple(move || {
+                        sender.send(element.get_bounding_client_rect()).unwrap();
+                    })
+                };
 
-            observer.observe(&element);
+                observer.observe(&element);
 
-            DomRectSignal { _observer: observer, receiver }
+                Self { _observer: observer, receiver }
+            }
         }
 
         /// Signal of Vec<DomRect>, driven by a ResizeObserver on a slice of Elements
+        /// It currently uses the ResizeObserverEntry's contentRect property
         pub struct DomRectMultiSignal {
             _observer: ResizeObserver,
             receiver: Receiver<Vec<DomRect>>,
@@ -245,23 +248,25 @@ cfg_if::cfg_if! {
             }
         }
 
-        pub fn dom_rect_multi_signal(elements: &[Element]) -> DomRectMultiSignal {
-            let init_sizes = elements.iter().map(|elem| elem.get_bounding_client_rect()).collect();
+        impl DomRectMultiSignal {
+            pub fn new(elements: &[Element]) -> Self {
+                let init_sizes = elements.iter().map(|elem| elem.get_bounding_client_rect()).collect();
 
-            let (sender, receiver) = channel(init_sizes);
+                let (sender, receiver) = channel(init_sizes);
 
-            let observer = {
-                ResizeObserver::new(move |entries| {
-                    let sizes = entries.into_iter().map(|entry| entry.content_rect).collect();
-                    sender.send(sizes).unwrap();
-                }, None)
-            };
+                let observer = {
+                    ResizeObserver::new(move |entries| {
+                        let sizes = entries.into_iter().map(|entry| entry.content_rect).collect();
+                        sender.send(sizes).unwrap();
+                    }, None)
+                };
 
-            for element in elements {
-                observer.observe(&element);
+                for element in elements {
+                    observer.observe(&element);
+                }
+
+                Self { _observer: observer, receiver }
             }
-
-            DomRectMultiSignal { _observer: observer, receiver }
         }
     }
 }
