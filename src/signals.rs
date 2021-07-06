@@ -199,6 +199,7 @@ cfg_if::cfg_if! {
         use awsm_web::dom::resize::ResizeObserver;
         use web_sys::{Element, DomRect};
 
+        /// Signal of DomRect, driven by a ResizeObserver on the Element
         pub struct DomRectSignal {
             _observer: ResizeObserver,
             receiver: Receiver<DomRect>,
@@ -229,6 +230,7 @@ cfg_if::cfg_if! {
             DomRectSignal { _observer: observer, receiver }
         }
 
+        /// Signal of Vec<DomRect>, driven by a ResizeObserver on a slice of Elements
         pub struct DomRectMultiSignal {
             _observer: ResizeObserver,
             receiver: Receiver<Vec<DomRect>>,
