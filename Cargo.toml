@@ -1,7 +1,7 @@
 [package]
 name = "dominator_helpers"
 description = "helpers for Dominator"
-version = "0.6.4"
+version = "0.7.0"
 authors = ["David Komer <david.komer@gmail.com>"]
 edition = "2018"
 documentation = "https://docs.rs/dominator-helpers"
@@ -23,12 +23,16 @@ serde-wasm-bindgen = "0.3.0"
 serde = "1.0.126"
 dominator = "0.5.19"
 wasm-bindgen = "0.2.74"
+cfg-if = "0.1"
+awsm_web = { version = "0.19.2", optional = true, features = ["dom"] }
 
 [dependencies.web-sys]
 version = "0.3.51"
 features = [
     "MessageEvent",
+    "DomRect"
 ]
 
 [features]
+default = ["awsm_web"]
 ts_test = []

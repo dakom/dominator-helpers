@@ -1,3 +1,8 @@
+use futures_signals::signal::{Signal, SignalExt, channel, Receiver};
+use std::marker::Unpin;
+use std::pin::Pin;
+use std::task::{Context, Poll};
+use std::rc::Rc;
 /*
  * This helper is to make it simpler to Box a signal-factory function
  * The use case is similar to where you might have a ReadOnlyMutable or Broadcaster
@@ -65,11 +70,6 @@ pub fn rc_signal_fn<T, S: Signal<Item = T> + 'static>(f: impl Fn() -> S + 'stati
  * considered finished, the consumer must not poll again.
 */
 
-use futures_signals::signal::{Signal, SignalExt};
-use std::marker::Unpin;
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use std::rc::Rc;
 
 /// If the provided signal is None,
 /// then a signal of the provided default
@@ -190,6 +190,76 @@ where
         match self.get_mut() {
             Self::Left(x) => x.poll_change_unpin(cx),
             Self::Right(x) => x.poll_change_unpin(cx),
+        }
+    }
+}
+
+cfg_if::cfg_if! {
+    if #[cfg(all(feature = "awsm_web"))] {
+        use awsm_web::dom::resize::ResizeObserver;
+        use web_sys::{Element, DomRect};
+
+        pub struct DomRectSignal {
+            _observer: ResizeObserver,
+            receiver: Receiver<DomRect>,
+        }
+
+        impl Signal for DomRectSignal {
+            type Item = DomRect;
+
+            #[inline]
+            fn poll_change(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+                self.receiver.poll_change_unpin(cx)
+            }
+        }
+
+        pub fn dom_rect_signal(element: &Element) -> DomRectSignal {
+            let (sender, receiver) = channel(element.get_bounding_client_rect());
+
+            let observer = {
+                let element = element.clone();
+                
+                ResizeObserver::new_simple(move || {
+                    sender.send(element.get_bounding_client_rect()).unwrap();
+                })
+            };
+
+            observer.observe(&element);
+
+            DomRectSignal { _observer: observer, receiver }
+        }
+
+        pub struct DomRectMultiSignal {
+            _observer: ResizeObserver,
+            receiver: Receiver<Vec<DomRect>>,
+        }
+
+        impl Signal for DomRectMultiSignal {
+            type Item = Vec<DomRect>;
+
+            #[inline]
+            fn poll_change(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+                self.receiver.poll_change_unpin(cx)
+            }
+        }
+
+        pub fn dom_rect_multi_signal(elements: &[Element]) -> DomRectMultiSignal {
+            let init_sizes = elements.iter().map(|elem| elem.get_bounding_client_rect()).collect();
+
+            let (sender, receiver) = channel(init_sizes);
+
+            let observer = {
+                ResizeObserver::new(move |entries| {
+                    let sizes = entries.into_iter().map(|entry| entry.content_rect).collect();
+                    sender.send(sizes).unwrap();
+                }, None)
+            };
+
+            for element in elements {
+                observer.observe(&element);
+            }
+
+            DomRectMultiSignal { _observer: observer, receiver }
         }
     }
 }
